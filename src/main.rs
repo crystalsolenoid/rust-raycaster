@@ -26,6 +26,10 @@ fn gen_map(w: u32, h: u32) -> Vec<bool> {
         }
     };
 
+    let mut horiz_wall = |x1: u32, x2: u32, y1: u32| {
+        draw_rect(x1, y1, x2, y1 + THICKNESS);
+    };
+
     // test map
     const THICKNESS: u32 = 32;
     // outer walls
@@ -33,6 +37,9 @@ fn gen_map(w: u32, h: u32) -> Vec<bool> {
     draw_rect(0, 0, w, THICKNESS);
     draw_rect(w - THICKNESS, 0, w, h);
     draw_rect(0, h - THICKNESS, w, h);
+    // inner walls
+    horiz_wall(0, 150, 200);
+    horiz_wall(0, 150, 400);
 
     map
 }
