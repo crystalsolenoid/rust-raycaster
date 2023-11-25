@@ -72,7 +72,7 @@ fn cast_ray(w: u32,
             img: &mut image::RgbImage,
             map: &[Option<Wall>], cam: &Camera, span: f32) -> Option<Wall> {
     // step ranges from 0 to 1: percentage throug the fov
-    let angle = cam.radians + cam.fov * (span - 0.5);
+    let angle = cam.radians - cam.fov * (span - 0.5);
     const STEPS: u32 = 100;
     const MAX_DIST: f32 = 512.0;
     for step in 0..STEPS {
