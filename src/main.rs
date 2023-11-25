@@ -9,6 +9,14 @@ struct Camera {
     fov: f32,
 }
 
+fn cast_fov(w: u32, img: &mut image::RgbImage,
+            map: &[bool], cam: &Camera) {
+    for i in 0..512 {
+        let step = (i as f32) / 512.0;
+        cast_ray(w, img, &map, &cam, step);
+    }
+}
+
 fn cast_ray(w: u32,
             img: &mut image::RgbImage,
             map: &[bool], cam: &Camera, span: f32) {
@@ -133,9 +141,7 @@ fn main() {
         }
     }
 
-    // TODO: after debugging, does not have to have access to img
-    let step = 0.5;
-    cast_ray(w, &mut img, &map, &camera, step);
+    cast_fov(w, &mut img, &map, &camera);
 
     draw_camera(&mut img, &camera);
 
