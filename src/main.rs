@@ -29,12 +29,43 @@ enum Wall {
     Stone,
 }
 
+fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
+    match wall {
+        Some(Wall::Dirt) => {
+            PALETTE[2]
+        },
+        Some(Wall::Brick) => {
+            PALETTE[0]
+        },
+        Some(Wall::Stone) => {
+            PALETTE[6]
+        },
+        None => {
+            PALETTE[7]
+        }
+    }
+}
+
+fn draw_view(img: &mut image::RgbImage, view: &[Option<Wall>]) {
+    for x in 0 .. 512 {
+        let color = pick_color(view[x as usize]);
+        for y in 0 .. 512 {
+            img.put_pixel(x, y, color);
+        }
+    }
+}
+
 fn cast_fov(w: u32, img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera) {
+            map: &[Option<Wall>], cam: &Camera) -> Vec<Option<Wall>> {
+    let mut view = Vec::with_capacity(w as usize);
+    view.resize(w as usize, None);
+
     for i in 0..512 {
         let step = (i as f32) / 512.0;
-        cast_ray(w, img, &map, &cam, step);
+        view[i as usize] = cast_ray(w, img, &map, &cam, step);
     }
+
+    view
 }
 
 fn cast_ray(w: u32,
@@ -71,14 +102,14 @@ fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
     }
 }
 
-fn write_image(img: &image::RgbImage) {
+fn write_image(img: &image::RgbImage, fname: &str) {
     // TODO: handle errors
     // make the output directory if it doesn't already exist
     let _ = fs::create_dir("output");
     // write the image
     let kind = image::ColorType::Rgb8;
     let dims = img.dimensions();
-    let _ = image::save_buffer("output/render.png", img, dims.0, dims.1, kind);
+    let _ = image::save_buffer("output/".to_string() + fname, img, dims.0, dims.1, kind);
 }
 
 fn gen_map(w: u32, h: u32) -> Vec<Option<Wall>> {
@@ -144,6 +175,7 @@ fn main() {
     let w: u32 = 512;
     let h: u32 = 512;
     let mut img = image::RgbImage::new(w, h);
+    let mut render = image::RgbImage::new(w, h);
 
     let map = gen_map(w, h);
     let camera = Camera {
@@ -157,28 +189,19 @@ fn main() {
         for x in 0..w {
             let idx = (x + y * w) as usize;
             let wall = map[idx];
-            let color;
-            match wall {
-                Some(Wall::Dirt) => {
-                    color = PALETTE[2];
-                },
-                Some(Wall::Brick) => {
-                    color = PALETTE[0];
-                },
-                Some(Wall::Stone) => {
-                    color = PALETTE[6];
-                },
-                None => {
-                    color = PALETTE[7];
-                }
-            }
+            let color = pick_color(wall);
+
             img.put_pixel(x, y, color);
         }
     }
 
-    cast_fov(w, &mut img, &map, &camera);
-
     draw_camera(&mut img, &camera);
 
-    write_image(&img);
+    let view = cast_fov(w, &mut img, &map, &camera);
+
+    write_image(&img, "map.png");
+
+    draw_view(&mut render, &view);
+
+    write_image(&render, "render.png");
 }
