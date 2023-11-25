@@ -5,8 +5,28 @@ use std::f32::consts::PI;
 struct Camera {
     x: u32,
     y: u32,
-    angle: f32,
+    radians: f32,
     fov: f32,
+}
+
+fn cast_ray(w: u32,
+            img: &mut image::RgbImage,
+            map: &[bool], cam: &Camera, span: f32) {
+    // step ranges from 0 to 1: percentage throug the fov
+    let angle = cam.radians + cam.fov * (span - 0.5);
+    for step in 0..512 {
+        let dist = step as f32;
+        let x_off = (dist * angle.cos()) as u32;
+        let y_off = (dist * angle.sin()) as u32;
+        let x = cam.x + x_off;
+        let y = cam.y - y_off; // minus because +y is down
+        let idx = (x + y * w) as usize;
+        if map[idx] {
+            break;
+        } else {
+            img.put_pixel(x, y, Rgb([86, 50, 38]));
+        }
+    }
 }
 
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
@@ -89,7 +109,7 @@ fn main() {
     let camera = Camera {
         x: 80,
         y: 310,
-        angle: 0.0,
+        radians: 2.0 * PI / 8.0,
         fov: PI/3.0,
     };
 
@@ -112,6 +132,10 @@ fn main() {
             img.put_pixel(x, y, Rgb([r, g, b]));
         }
     }
+
+    // TODO: after debugging, does not have to have access to img
+    let step = 0.5;
+    cast_ray(w, &mut img, &map, &camera, step);
 
     draw_camera(&mut img, &camera);
 
