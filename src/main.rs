@@ -1,11 +1,22 @@
 use image::Rgb;
 use std::fs;
+use std::f32::consts::PI;
 
 struct Camera {
     x: u32,
     y: u32,
     angle: f32,
     fov: f32,
+}
+
+fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
+    // crosshairs for camera location
+    for x in camera.x - 10 ..= camera.x + 10 {
+        img.put_pixel(x, camera.y, Rgb([246, 205, 38]));
+    }
+    for y in camera.y - 10 ..= camera.y + 10 {
+        img.put_pixel(camera.x, y, Rgb([246, 205, 38]));
+    }
 }
 
 fn write_image(img: &image::RgbImage) {
@@ -75,6 +86,12 @@ fn main() {
     let mut img = image::RgbImage::new(w, h);
 
     let map = gen_map(w, h);
+    let camera = Camera {
+        x: 80,
+        y: 310,
+        angle: 0.0,
+        fov: PI/3.0,
+    };
 
     for y in 0..h {
         for x in 0..w {
@@ -95,6 +112,8 @@ fn main() {
             img.put_pixel(x, y, Rgb([r, g, b]));
         }
     }
+
+    draw_camera(&mut img, &camera);
 
     write_image(&img);
 }
