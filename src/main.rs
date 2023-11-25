@@ -16,9 +16,6 @@ fn gen_map(w: u32, h: u32) -> Vec<bool> {
 
     let draw_rect = |map: &mut Vec<bool>,
                      x1: u32, y1: u32, x2: u32, y2: u32| {
-        // I don't know how a closure works,
-        // but the compiler recommended it
-        // so here we go!
         for y in y1..y2 {
             for x in x1..x2 {
                 let idx = (x + y * w) as usize;
@@ -32,6 +29,11 @@ fn gen_map(w: u32, h: u32) -> Vec<bool> {
         draw_rect(map, x1, y1, x2, y1 + THICKNESS);
     };
 
+    let vert_wall = |map: &mut Vec<bool>,
+                      y1: u32, y2: u32, x1: u32| {
+        draw_rect(map, x1, y1, x1 + THICKNESS, y2);
+    };
+
     // test map
     const THICKNESS: u32 = 32;
     // outer walls
@@ -40,8 +42,22 @@ fn gen_map(w: u32, h: u32) -> Vec<bool> {
     draw_rect(&mut map, w - THICKNESS, 0, w, h);
     draw_rect(&mut map, 0, h - THICKNESS, w, h);
     // inner walls
+    // little room
     horiz_wall(&mut map, 0, 150, 200);
     horiz_wall(&mut map, 0, 150, 400);
+    vert_wall(&mut map, 200, 280, 150);
+    vert_wall(&mut map, 320, 400 + THICKNESS, 150);
+    // hallway
+    vert_wall(&mut map, 100, h, 250);
+    horiz_wall(&mut map, 100, 250, 100);
+    horiz_wall(&mut map, 340, w, 100);
+    horiz_wall(&mut map, 250 + THICKNESS, 450, 170);
+    // bumps
+    vert_wall(&mut map, 450, h, 400);
+    vert_wall(&mut map, 450, h, 350);
+    vert_wall(&mut map, 450, h, 300);
+    // columns
+    vert_wall(&mut map, 300, 300 + THICKNESS, 380);
 
     map
 }
