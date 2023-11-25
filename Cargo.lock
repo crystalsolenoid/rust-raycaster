@@ -283,10 +283,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "raycast_utils"
+version = "0.1.0"
+
+[[package]]
 name = "raycaster"
 version = "0.1.0"
 dependencies = [
  "image",
+ "raycast_utils",
 ]
 
 [[package]]

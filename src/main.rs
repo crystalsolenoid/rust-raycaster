@@ -2,6 +2,8 @@ use image::Rgb;
 use std::cmp;
 use std::fs;
 use std::f32::consts::PI;
+use raycast_utils;
+use raycast_utils::{Camera, Ray};
 
 const PALETTE: [Rgb<u8>; 8] = [
     // Rust Gold 8 Palette
@@ -16,24 +18,11 @@ const PALETTE: [Rgb<u8>; 8] = [
     Rgb([32, 32, 32]), // Black
 ];
 
-struct Camera {
-    x: u32,
-    y: u32,
-    radians: f32,
-    fov: f32,
-}
-
 #[derive(Clone, Copy)]
 enum Wall {
     Dirt,
     Brick,
     Stone,
-}
-
-#[derive(Clone, Copy)]
-struct Ray {
-    distance: f32,
-    wall: Option<Wall>,
 }
 
 fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
@@ -53,13 +42,12 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     }
 }
 
-fn draw_view(img: &mut image::RgbImage, view: &[Ray]) {
+fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>]) {
     for x in 0 .. 512 {
         let ray = view[x as usize];
         let color = pick_color(ray.wall);
         let mut from_axis = (512.0 / ray.distance) as u32;
         from_axis = cmp::min(from_axis, 512);
-        print!("dist {}, height {}", ray.distance, from_axis);
         for y in 0..from_axis as u32 {
             img.put_pixel(x, 256 + y, color);
             img.put_pixel(x, 256 - y, color);
@@ -68,7 +56,7 @@ fn draw_view(img: &mut image::RgbImage, view: &[Ray]) {
 }
 
 fn cast_fov(w: u32, img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera) -> Vec<Ray> {
+            map: &[Option<Wall>], cam: &Camera) -> Vec<Ray<Wall>> {
     let mut view = Vec::with_capacity(w as usize);
     view.resize(w as usize, Ray{ distance: 512.0, wall: None });
 
@@ -82,15 +70,16 @@ fn cast_fov(w: u32, img: &mut image::RgbImage,
 
 fn cast_ray(w: u32,
             img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera, span: f32) -> Ray {
+            map: &[Option<Wall>], cam: &Camera, span: f32) -> Ray<Wall> {
     // step ranges from 0 to 1: percentage throug the fov
-    let angle = cam.radians - cam.fov * (span - 0.5);
+    let angle = raycast_utils::calculate_angle(cam, span);
     const STEPS: u32 = 100;
     const MAX_DIST: f32 = 512.0;
     for step in 0..STEPS {
         let dist = MAX_DIST * (step as f32) / (STEPS as f32) ;
-        let x_off = (dist * angle.cos()) as u32;
-        let y_off = (dist * angle.sin()) as u32;
+        let offset = raycast_utils::calculate_ray(dist, angle);
+        let x_off = offset.0;
+        let y_off = offset.1;
         let x = cam.x + x_off;
         let y = cam.y - y_off; // minus because +y is down
         let idx = (x + y * w) as usize;
