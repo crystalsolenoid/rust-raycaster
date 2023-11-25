@@ -1,6 +1,13 @@
 use image::Rgb;
 use std::fs;
 
+struct Camera {
+    x: u32,
+    y: u32,
+    angle: f32,
+    fov: f32,
+}
+
 fn write_image(img: &image::RgbImage) {
     // TODO: handle errors
     // make the output directory if it doesn't already exist
