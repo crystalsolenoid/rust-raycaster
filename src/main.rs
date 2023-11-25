@@ -22,8 +22,10 @@ fn cast_ray(w: u32,
             map: &[bool], cam: &Camera, span: f32) {
     // step ranges from 0 to 1: percentage throug the fov
     let angle = cam.radians + cam.fov * (span - 0.5);
-    for step in 0..512 {
-        let dist = step as f32;
+    const STEPS: u32 = 100;
+    const MAX_DIST: f32 = 512.0;
+    for step in 0..STEPS {
+        let dist = MAX_DIST * (step as f32) / (STEPS as f32) ;
         let x_off = (dist * angle.cos()) as u32;
         let y_off = (dist * angle.sin()) as u32;
         let x = cam.x + x_off;
