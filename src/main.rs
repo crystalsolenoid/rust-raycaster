@@ -14,7 +14,7 @@ fn write_image(img: &image::RgbImage) {
 fn gen_map(w: u32, h: u32) -> Vec<bool> {
     let mut map = vec![false; (w * h) as usize];
 
-    let draw_rect = |map: &mut Vec<bool>,
+    let draw_rect = |map: &mut [bool],
                      x1: u32, y1: u32, x2: u32, y2: u32| {
         for y in y1..y2 {
             for x in x1..x2 {
@@ -24,12 +24,12 @@ fn gen_map(w: u32, h: u32) -> Vec<bool> {
         }
     };
 
-    let horiz_wall = |map: &mut Vec<bool>,
+    let horiz_wall = |map: &mut [bool],
                       x1: u32, x2: u32, y1: u32| {
         draw_rect(map, x1, y1, x2, y1 + THICKNESS);
     };
 
-    let vert_wall = |map: &mut Vec<bool>,
+    let vert_wall = |map: &mut [bool],
                       y1: u32, y2: u32, x1: u32| {
         draw_rect(map, x1, y1, x1 + THICKNESS, y2);
     };
