@@ -108,6 +108,7 @@ fn gen_map(w: u32, h: u32) -> Vec<Option<Wall>> {
     horiz_wall(&mut map, 0, 150, 400, material);
     vert_wall(&mut map, 200, 280, 150, material);
     vert_wall(&mut map, 320, 400 + THICKNESS, 150, material);
+    vert_wall(&mut map, 200, 400, 0, material);
     // hallway
     material = Some(Wall::Brick);
     vert_wall(&mut map, 100, h, 250, material);
@@ -120,6 +121,7 @@ fn gen_map(w: u32, h: u32) -> Vec<Option<Wall>> {
     vert_wall(&mut map, 450, h, 350, material);
     vert_wall(&mut map, 450, h, 300, material);
     // columns
+    material = Some(Wall::Stone);
     vert_wall(&mut map, 300, 300 + THICKNESS, 380, material);
 
     map
