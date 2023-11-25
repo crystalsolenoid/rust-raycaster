@@ -18,7 +18,7 @@ pub fn calculate_ray(distance: f32, angle: f32) -> (u32, u32) {
 }
 
 pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
-    cam.radians - cam.fov * (span - 0.5)
+    cam.radians + cam.fov * (span - 0.5)
 }
 
 #[cfg(test)]
