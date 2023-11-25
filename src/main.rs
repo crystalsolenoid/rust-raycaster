@@ -2,6 +2,19 @@ use image::Rgb;
 use std::fs;
 use std::f32::consts::PI;
 
+const PALETTE: [Rgb<u8>; 8] = [
+    // Rust Gold 8 Palette
+    // https://lospec.com/palette-list/rust-gold-8
+    Rgb([246, 205, 38]), // Gold
+    Rgb([172, 107, 38]), // Orange
+    Rgb([86, 50, 38]), // Rust
+    Rgb([51, 28, 23]), // Maroon
+    Rgb([187, 127, 87]), // Creamsicle
+    Rgb([114, 89, 86]), // Purple
+    Rgb([57, 57, 57]), // Gray
+    Rgb([32, 32, 32]), // Black
+];
+
 struct Camera {
     x: u32,
     y: u32,
@@ -42,7 +55,7 @@ fn cast_ray(w: u32,
         if map[idx].is_some() {
             return map[idx];
         } else {
-            img.put_pixel(x, y, Rgb([86, 50, 38]));
+            img.put_pixel(x, y, PALETTE[2]);
         }
     }
     return None;
@@ -51,10 +64,10 @@ fn cast_ray(w: u32,
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
     // crosshairs for camera location
     for x in camera.x - 10 ..= camera.x + 10 {
-        img.put_pixel(x, camera.y, Rgb([246, 205, 38]));
+        img.put_pixel(x, camera.y, PALETTE[0]);
     }
     for y in camera.y - 10 ..= camera.y + 10 {
-        img.put_pixel(camera.x, y, Rgb([246, 205, 38]));
+        img.put_pixel(camera.x, y, PALETTE[0]);
     }
 }
 
@@ -144,32 +157,22 @@ fn main() {
         for x in 0..w {
             let idx = (x + y * w) as usize;
             let wall = map[idx];
-            let r;
-            let g;
-            let b;
+            let color;
             match wall {
                 Some(Wall::Dirt) => {
-                    r = 86;
-                    g = 50;
-                    b = 38;
+                    color = PALETTE[2];
                 },
                 Some(Wall::Brick) => {
-                    r = 246;
-                    g = 205;
-                    b = 38;
+                    color = PALETTE[0];
                 },
                 Some(Wall::Stone) => {
-                    r = 57;
-                    g = 57;
-                    b = 57;
+                    color = PALETTE[6];
                 },
-                _ => {
-                    r = 32;
-                    g = 32;
-                    b = 32;
+                None => {
+                    color = PALETTE[7];
                 }
             }
-            img.put_pixel(x, y, Rgb([r, g, b]));
+            img.put_pixel(x, y, color);
         }
     }
 
