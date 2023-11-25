@@ -1,4 +1,5 @@
 use image::Rgb;
+use std::cmp;
 use std::fs;
 use std::f32::consts::PI;
 
@@ -29,6 +30,12 @@ enum Wall {
     Stone,
 }
 
+#[derive(Clone, Copy)]
+struct Ray {
+    distance: f32,
+    wall: Option<Wall>,
+}
+
 fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     match wall {
         Some(Wall::Dirt) => {
@@ -46,19 +53,24 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     }
 }
 
-fn draw_view(img: &mut image::RgbImage, view: &[Option<Wall>]) {
+fn draw_view(img: &mut image::RgbImage, view: &[Ray]) {
     for x in 0 .. 512 {
-        let color = pick_color(view[x as usize]);
-        for y in 0 .. 512 {
-            img.put_pixel(x, y, color);
+        let ray = view[x as usize];
+        let color = pick_color(ray.wall);
+        let mut from_axis = (512.0 / ray.distance) as u32;
+        from_axis = cmp::min(from_axis, 512);
+        print!("dist {}, height {}", ray.distance, from_axis);
+        for y in 0..from_axis as u32 {
+            img.put_pixel(x, 256 + y, color);
+            img.put_pixel(x, 256 - y, color);
         }
     }
 }
 
 fn cast_fov(w: u32, img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera) -> Vec<Option<Wall>> {
+            map: &[Option<Wall>], cam: &Camera) -> Vec<Ray> {
     let mut view = Vec::with_capacity(w as usize);
-    view.resize(w as usize, None);
+    view.resize(w as usize, Ray{ distance: 512.0, wall: None });
 
     for i in 0..512 {
         let step = (i as f32) / 512.0;
@@ -70,7 +82,7 @@ fn cast_fov(w: u32, img: &mut image::RgbImage,
 
 fn cast_ray(w: u32,
             img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera, span: f32) -> Option<Wall> {
+            map: &[Option<Wall>], cam: &Camera, span: f32) -> Ray {
     // step ranges from 0 to 1: percentage throug the fov
     let angle = cam.radians - cam.fov * (span - 0.5);
     const STEPS: u32 = 100;
@@ -84,12 +96,18 @@ fn cast_ray(w: u32,
         let idx = (x + y * w) as usize;
         // TODO: make this pattern matching
         if map[idx].is_some() {
-            return map[idx];
+            return Ray {
+                distance: dist,
+                wall: map[idx],
+            }
         } else {
             img.put_pixel(x, y, PALETTE[2]);
         }
     }
-    return None;
+    return Ray {
+        distance: MAX_DIST,
+        wall: None,
+    }
 }
 
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
