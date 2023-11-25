@@ -77,13 +77,13 @@ fn main() {
             let g;
             let b;
             if wall {
-                r = 0 as u8;
-                g = 128 as u8;
-                b = 200 as u8;
+                r = 114;
+                g = 89;
+                b = 86;
             } else {
-                r = ((255 * y) as f32 / (w as f32)) as u8;
-                g = ((255 * x) as f32 / (w as f32)) as u8;
-                b = 0;
+                r = 32;
+                g = 32;
+                b = 32;
             }
             img.put_pixel(x, y, Rgb([r, g, b]));
         }
