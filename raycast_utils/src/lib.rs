@@ -1,7 +1,3 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
 pub struct Camera {
     pub x: u32,
     pub y: u32,
@@ -28,11 +24,65 @@ pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f32::consts::PI;
 
     #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    fn fov_lowest() {
+        let cam = Camera {
+            x: 150,
+            y: 150,
+            radians: PI,
+            fov: 2.0 * PI / 3.0,
+        };
+        let result = calculate_angle(&cam, 0.0);
+        assert_eq!(result, 2.0 * PI / 3.0);
     }
 
+    #[test]
+    fn fov_highest() {
+        let cam = Camera {
+            x: 150,
+            y: 150,
+            radians: PI,
+            fov: 2.0 * PI / 3.0,
+        };
+        let result = calculate_angle(&cam, 1.0);
+        assert_eq!(result, 4.0 * PI / 3.0);
+    }
+
+    #[test]
+    fn angle_at_zero() {
+        let cam = Camera {
+            x: 150,
+            y: 150,
+            radians: 0.0,
+            fov: 2.0 * PI / 3.0,
+        };
+        let result = calculate_angle(&cam, 0.0);
+        assert_eq!(result, 5.0 * PI / 3.0);
+    }
+
+    #[test]
+    fn fov_below_zero() {
+        let cam = Camera {
+            x: 150,
+            y: 150,
+            radians: 1.0 * PI / 3.0,
+            fov: 4.0 * PI / 3.0,
+        };
+        let result = calculate_angle(&cam, 0.0);
+        assert_eq!(result, 5.0 * PI / 3.0);
+    }
+
+    #[test]
+    fn fov_above_2_pi() {
+        let cam = Camera {
+            x: 150,
+            y: 150,
+            radians: 5.0 * PI / 3.0,
+            fov: 4.0 * PI / 3.0,
+        };
+        let result = calculate_angle(&cam, 0.0);
+        assert_eq!(result, 1.0 * PI / 3.0);
+    }
 }
