@@ -42,12 +42,12 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     }
 }
 
-fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>]) {
+fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
     for x in 0 .. 512 {
         let ray = view[(511 - x) as usize];
         let color = pick_color(ray.wall);
-        let mut from_axis = (512.0 / ray.distance) as u32;
-        from_axis = cmp::min(from_axis, 512);
+        let mut from_axis = (cam.max_distance / ray.distance) as u32;
+        from_axis = cmp::min(from_axis, cam.max_distance as u32);
         for y in 0..from_axis as u32 {
             img.put_pixel(x, 256 + y, color);
             img.put_pixel(x, 256 - y, color);
@@ -55,48 +55,35 @@ fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>]) {
     }
 }
 
-fn cast_fov(w: u32, img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera) -> Vec<Ray<Wall>> {
-    let mut view = Vec::with_capacity(w as usize);
-    view.resize(w as usize, Ray{ distance: 512.0, wall: None });
-
-    for i in 0..512 {
-        let step = (i as f32) / 512.0;
-        view[i as usize] = cast_ray(w, img, &map, &cam, step);
-    }
-
-    view
-}
-
-fn cast_ray(w: u32,
-            img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera, span: f32) -> Ray<Wall> {
-    // step ranges from 0 to 1: percentage throug the fov
-    let angle = raycast_utils::calculate_angle(cam, span);
-    const STEPS: u32 = 100;
-    const MAX_DIST: f32 = 512.0;
-    for step in 0..STEPS {
-        let dist = MAX_DIST * (step as f32) / (STEPS as f32) ;
-        let offset = raycast_utils::calculate_ray(dist, angle);
+fn draw_ray(img: &mut image::RgbImage, cam: &Camera, ray: Ray<Wall>) {
+    // for debug
+    for step in 0..cam.ray_steps {
+        let dist = cam.max_distance * (step as f32) / (cam.ray_steps as f32);
+        let offset = raycast_utils::calculate_ray(dist, ray.angle);
         let x_off = offset.0;
         let y_off = offset.1;
         let x = (cam.x + x_off) as u32;
-        let y = (cam.y - y_off) as u32; // minus because +y is down
-        let idx = (x + y * w) as usize;
-        // TODO: make this pattern matching
-        if map[idx].is_some() {
-            return Ray {
-                distance: dist,
-                wall: map[idx],
-            }
-        } else {
-            img.put_pixel(x, y, PALETTE[2]);
+        let y = (cam.y - y_off) as u32;
+        if dist == ray.distance {
+            break;
         }
+        img.put_pixel(x, y, PALETTE[2]);
     }
-    return Ray {
-        distance: MAX_DIST,
-        wall: None,
+}
+
+fn cast_fov(w: u32, img: &mut image::RgbImage,
+            map: &[Option<Wall>], cam: &Camera) -> Vec<Ray<Wall>> {
+    let mut view = Vec::with_capacity(w as usize);
+    view.resize(w as usize, Ray{ distance: cam.max_distance, wall: None, angle: 0.0 });
+
+    for i in 0..512 {
+        let step = (i as f32) / cam.max_distance;
+        let ray = raycast_utils::cast_ray(w, &map, &cam, step);
+        draw_ray(img, cam, ray);
+        view[i as usize] = ray;
     }
+
+    view
 }
 
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
@@ -190,6 +177,8 @@ fn main() {
         y: 310,
         radians: 2.0 * PI / 8.0,
         fov: PI/3.0,
+        max_distance: 512.0,
+        ray_steps: 256,
     };
 
     for y in 0..h {
@@ -208,7 +197,7 @@ fn main() {
 
     write_image(&img, "map.png");
 
-    draw_view(&mut render, &view);
+    draw_view(&mut render, &view, &camera);
 
     write_image(&render, "render.png");
 }

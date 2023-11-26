@@ -5,11 +5,14 @@ pub struct Camera {
     pub y: i32,
     pub radians: f32,
     pub fov: f32,
+    pub max_distance: f32,
+    pub ray_steps: u32,
 }
 
 #[derive(Clone, Copy)]
 pub struct Ray<T> {
     pub distance: f32,
+    pub angle: f32,
     pub wall: Option<T>, //TODO rename to collision?
 }
 
@@ -26,6 +29,34 @@ pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
     ((angle % MAX_ANGLE) + MAX_ANGLE ) % MAX_ANGLE
 }
 
+pub fn cast_ray<T: Copy>(w: u32,
+            map: &[Option<T>], cam: &Camera, span: f32) -> Ray<T> {
+    // step ranges from 0 to 1: percentage throug the fov
+    let angle = calculate_angle(cam, span);
+    for step in 0..cam.ray_steps {
+        let dist = cam.max_distance * (step as f32) / (cam.ray_steps as f32) ;
+        let offset = calculate_ray(dist, angle);
+        let x_off = offset.0;
+        let y_off = offset.1;
+        let x = (cam.x + x_off) as u32;
+        let y = (cam.y - y_off) as u32; // minus because +y is down
+        let idx = (x + y * w) as usize;
+        // TODO: make this pattern matching
+        if map[idx].is_some() {
+            return Ray {
+                distance: dist,
+                wall: map[idx],
+                angle: angle,
+            }
+        }
+    }
+    return Ray {
+        distance: cam.max_distance,
+        wall: None,
+        angle: angle,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -38,6 +69,8 @@ mod tests {
             y: 150,
             radians: PI,
             fov: 2.0 * PI / 3.0,
+            max_distance: 512.0,
+            ray_steps: 256,
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 2.0 * PI / 3.0);
@@ -50,6 +83,8 @@ mod tests {
             y: 150,
             radians: PI,
             fov: 2.0 * PI / 3.0,
+            max_distance: 512.0,
+            ray_steps: 256,
         };
         let result = calculate_angle(&cam, 1.0);
         assert_approx_eq!(result, 4.0 * PI / 3.0);
@@ -62,6 +97,8 @@ mod tests {
             y: 150,
             radians: 0.0,
             fov: 2.0 * PI / 3.0,
+            max_distance: 512.0,
+            ray_steps: 256,
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 5.0 * PI / 3.0);
@@ -74,6 +111,8 @@ mod tests {
             y: 150,
             radians: 1.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
+            max_distance: 512.0,
+            ray_steps: 256,
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 5.0 * PI / 3.0);
@@ -86,6 +125,8 @@ mod tests {
             y: 150,
             radians: 5.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
+            max_distance: 512.0,
+            ray_steps: 256,
         };
         let result = calculate_angle(&cam, 1.0);
         assert_approx_eq!(result, 1.0 * PI / 3.0);
