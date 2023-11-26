@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 pub struct Camera {
     pub x: u32,
     pub y: u32,
@@ -18,13 +20,16 @@ pub fn calculate_ray(distance: f32, angle: f32) -> (u32, u32) {
 }
 
 pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
-    cam.radians + cam.fov * (span - 0.5)
+    let angle = cam.radians + cam.fov * (span - 0.5);
+    const MAX_ANGLE: f32 = 2.0 * PI;
+    // angle % MAX_ANGLE but for deranged inconsistent Rust/C math:
+    ((angle % MAX_ANGLE) + MAX_ANGLE ) % MAX_ANGLE
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f32::consts::PI;
+    use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn fov_lowest() {
@@ -35,7 +40,7 @@ mod tests {
             fov: 2.0 * PI / 3.0,
         };
         let result = calculate_angle(&cam, 0.0);
-        assert_eq!(result, 2.0 * PI / 3.0);
+        assert_approx_eq!(result, 2.0 * PI / 3.0);
     }
 
     #[test]
@@ -47,7 +52,7 @@ mod tests {
             fov: 2.0 * PI / 3.0,
         };
         let result = calculate_angle(&cam, 1.0);
-        assert_eq!(result, 4.0 * PI / 3.0);
+        assert_approx_eq!(result, 4.0 * PI / 3.0);
     }
 
     #[test]
@@ -59,7 +64,7 @@ mod tests {
             fov: 2.0 * PI / 3.0,
         };
         let result = calculate_angle(&cam, 0.0);
-        assert_eq!(result, 5.0 * PI / 3.0);
+        assert_approx_eq!(result, 5.0 * PI / 3.0);
     }
 
     #[test]
@@ -71,7 +76,7 @@ mod tests {
             fov: 4.0 * PI / 3.0,
         };
         let result = calculate_angle(&cam, 0.0);
-        assert_eq!(result, 5.0 * PI / 3.0);
+        assert_approx_eq!(result, 5.0 * PI / 3.0);
     }
 
     #[test]
@@ -82,7 +87,7 @@ mod tests {
             radians: 5.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
         };
-        let result = calculate_angle(&cam, 0.0);
-        assert_eq!(result, 1.0 * PI / 3.0);
+        let result = calculate_angle(&cam, 1.0);
+        assert_approx_eq!(result, 1.0 * PI / 3.0);
     }
 }
