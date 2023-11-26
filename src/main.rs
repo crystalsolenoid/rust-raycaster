@@ -157,10 +157,10 @@ fn main() {
 
     let map = gen_map(w, h);
     let camera = Camera {
-        x: 80,
-        y: 310,
-        radians: 2.0 * PI / 8.0,
-        fov: PI/3.0,
+        x: 380,
+        y: 340,
+        radians: 0.3 * PI,
+        fov: 0.5 * PI,
         max_distance: 512.0,
         ray_steps: 256,
     };
