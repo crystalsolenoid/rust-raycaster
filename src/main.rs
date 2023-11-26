@@ -44,7 +44,7 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
 
 fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>]) {
     for x in 0 .. 512 {
-        let ray = view[x as usize];
+        let ray = view[(511 - x) as usize];
         let color = pick_color(ray.wall);
         let mut from_axis = (512.0 / ray.distance) as u32;
         from_axis = cmp::min(from_axis, 512);
