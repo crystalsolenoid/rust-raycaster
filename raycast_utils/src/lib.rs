@@ -57,6 +57,18 @@ pub fn cast_ray<T: Copy>(w: u32,
     }
 }
 
+pub fn cast_fov<T: Copy>(w: u32, map: &[Option<T>],
+                     cam: &Camera) -> Vec<Ray<T>> {
+    let mut view = Vec::with_capacity(w as usize);
+    view.resize(w as usize, Ray{ distance: cam.max_distance, wall: None, angle: 0.0 });
+    for i in 0..512 {
+        let step = (i as f32) / cam.max_distance;
+        let ray = cast_ray(w, &map, &cam, step);
+        view[i as usize] = ray;
+    }
+    view
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

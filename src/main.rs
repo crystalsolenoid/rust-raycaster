@@ -55,7 +55,7 @@ fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
     }
 }
 
-fn draw_ray(img: &mut image::RgbImage, cam: &Camera, ray: Ray<Wall>) {
+fn draw_ray(img: &mut image::RgbImage, cam: &Camera, ray: &Ray<Wall>) {
     // for debug
     for step in 0..cam.ray_steps {
         let dist = cam.max_distance * (step as f32) / (cam.ray_steps as f32);
@@ -71,19 +71,10 @@ fn draw_ray(img: &mut image::RgbImage, cam: &Camera, ray: Ray<Wall>) {
     }
 }
 
-fn cast_fov(w: u32, img: &mut image::RgbImage,
-            map: &[Option<Wall>], cam: &Camera) -> Vec<Ray<Wall>> {
-    let mut view = Vec::with_capacity(w as usize);
-    view.resize(w as usize, Ray{ distance: cam.max_distance, wall: None, angle: 0.0 });
-
-    for i in 0..512 {
-        let step = (i as f32) / cam.max_distance;
-        let ray = raycast_utils::cast_ray(w, &map, &cam, step);
+fn draw_fov(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
+    for ray in view {
         draw_ray(img, cam, ray);
-        view[i as usize] = ray;
     }
-
-    view
 }
 
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
@@ -193,7 +184,8 @@ fn main() {
 
     draw_camera(&mut img, &camera);
 
-    let view = cast_fov(w, &mut img, &map, &camera);
+    let view = raycast_utils::cast_fov(w, &map, &camera);
+    draw_fov(&mut img, &view, &camera);
 
     write_image(&img, "map.png");
 
