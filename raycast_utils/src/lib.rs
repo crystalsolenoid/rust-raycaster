@@ -26,15 +26,14 @@ pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
     let angle = cam.radians + cam.fov * (span - 0.5);
     const MAX_ANGLE: f32 = 2.0 * PI;
     // angle % MAX_ANGLE but for deranged inconsistent Rust/C math:
-    ((angle % MAX_ANGLE) + MAX_ANGLE ) % MAX_ANGLE
+    ((angle % MAX_ANGLE) + MAX_ANGLE) % MAX_ANGLE
 }
 
-pub fn cast_ray<T: Copy>(w: u32,
-            map: &[Option<T>], cam: &Camera, span: f32) -> Ray<T> {
+pub fn cast_ray<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera, span: f32) -> Ray<T> {
     // step ranges from 0 to 1: percentage throug the fov
     let angle = calculate_angle(cam, span);
     for step in 0..cam.ray_steps {
-        let dist = cam.max_distance * (step as f32) / (cam.ray_steps as f32) ;
+        let dist = cam.max_distance * (step as f32) / (cam.ray_steps as f32);
         let offset = calculate_ray(dist, angle);
         let x_off = offset.0;
         let y_off = offset.1;
@@ -47,20 +46,26 @@ pub fn cast_ray<T: Copy>(w: u32,
                 distance: dist,
                 wall: map[idx],
                 angle: angle,
-            }
+            };
         }
     }
     return Ray {
         distance: cam.max_distance,
         wall: None,
         angle: angle,
-    }
+    };
 }
 
-pub fn cast_fov<T: Copy>(w: u32, map: &[Option<T>],
-                     cam: &Camera) -> Vec<Ray<T>> {
+pub fn cast_fov<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera) -> Vec<Ray<T>> {
     let mut view = Vec::with_capacity(w as usize);
-    view.resize(w as usize, Ray{ distance: cam.max_distance, wall: None, angle: 0.0 });
+    view.resize(
+        w as usize,
+        Ray {
+            distance: cam.max_distance,
+            wall: None,
+            angle: 0.0,
+        },
+    );
     for i in 0..512 {
         let step = (i as f32) / cam.max_distance;
         let ray = cast_ray(w, &map, &cam, step);

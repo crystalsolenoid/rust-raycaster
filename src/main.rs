@@ -1,21 +1,21 @@
 use image::Rgb;
-use std::cmp;
-use std::fs;
-use std::f32::consts::PI;
 use raycast_utils;
 use raycast_utils::{Camera, Ray};
+use std::cmp;
+use std::f32::consts::PI;
+use std::fs;
 
 const PALETTE: [Rgb<u8>; 8] = [
     // Rust Gold 8 Palette
     // https://lospec.com/palette-list/rust-gold-8
     Rgb([246, 205, 38]), // Gold
     Rgb([172, 107, 38]), // Orange
-    Rgb([86, 50, 38]), // Rust
-    Rgb([51, 28, 23]), // Maroon
+    Rgb([86, 50, 38]),   // Rust
+    Rgb([51, 28, 23]),   // Maroon
     Rgb([187, 127, 87]), // Creamsicle
-    Rgb([114, 89, 86]), // Purple
-    Rgb([57, 57, 57]), // Gray
-    Rgb([32, 32, 32]), // Black
+    Rgb([114, 89, 86]),  // Purple
+    Rgb([57, 57, 57]),   // Gray
+    Rgb([32, 32, 32]),   // Black
 ];
 
 #[derive(Clone, Copy)]
@@ -27,23 +27,15 @@ enum Wall {
 
 fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     match wall {
-        Some(Wall::Dirt) => {
-            PALETTE[2]
-        },
-        Some(Wall::Brick) => {
-            PALETTE[0]
-        },
-        Some(Wall::Stone) => {
-            PALETTE[6]
-        },
-        None => {
-            PALETTE[7]
-        }
+        Some(Wall::Dirt) => PALETTE[2],
+        Some(Wall::Brick) => PALETTE[0],
+        Some(Wall::Stone) => PALETTE[6],
+        None => PALETTE[7],
     }
 }
 
 fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
-    for x in 0 .. 512 {
+    for x in 0..512 {
         let ray = view[(511 - x) as usize];
         let color = pick_color(ray.wall);
         let mut from_axis = (cam.max_distance / ray.distance) as u32;
@@ -79,10 +71,10 @@ fn draw_fov(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
 
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
     // crosshairs for camera location
-    for x in camera.x - 10 ..= camera.x + 10 {
+    for x in camera.x - 10..=camera.x + 10 {
         img.put_pixel(x as u32, camera.y as u32, PALETTE[0]);
     }
-    for y in camera.y - 10 ..= camera.y + 10 {
+    for y in camera.y - 10..=camera.y + 10 {
         img.put_pixel(camera.x as u32, y as u32, PALETTE[0]);
     }
 }
@@ -98,29 +90,29 @@ fn write_image(img: &image::RgbImage, fname: &str) {
 }
 
 fn gen_map(w: u32, h: u32) -> Vec<Option<Wall>> {
-//    let mut map = vec![None; (w * h) as usize];
+    //    let mut map = vec![None; (w * h) as usize];
     let mut map = Vec::with_capacity((w * h) as usize);
     map.resize((w * h) as usize, None);
 
-    let draw_rect = |map: &mut [Option<Wall>],
-                     x1: u32, y1: u32, x2: u32, y2: u32, material: Option<Wall>| {
-        for y in y1..y2 {
-            for x in x1..x2 {
-                let idx = (x + y * w) as usize;
-                map[idx] = material;
+    let draw_rect =
+        |map: &mut [Option<Wall>], x1: u32, y1: u32, x2: u32, y2: u32, material: Option<Wall>| {
+            for y in y1..y2 {
+                for x in x1..x2 {
+                    let idx = (x + y * w) as usize;
+                    map[idx] = material;
+                }
             }
-        }
-    };
+        };
 
-    let horiz_wall = |map: &mut [Option<Wall>],
-                      x1: u32, x2: u32, y1: u32, material: Option<Wall>| {
-        draw_rect(map, x1, y1, x2, y1 + THICKNESS, material);
-    };
+    let horiz_wall =
+        |map: &mut [Option<Wall>], x1: u32, x2: u32, y1: u32, material: Option<Wall>| {
+            draw_rect(map, x1, y1, x2, y1 + THICKNESS, material);
+        };
 
-    let vert_wall = |map: &mut [Option<Wall>],
-                      y1: u32, y2: u32, x1: u32, material: Option<Wall>| {
-        draw_rect(map, x1, y1, x1 + THICKNESS, y2, material);
-    };
+    let vert_wall =
+        |map: &mut [Option<Wall>], y1: u32, y2: u32, x1: u32, material: Option<Wall>| {
+            draw_rect(map, x1, y1, x1 + THICKNESS, y2, material);
+        };
 
     // test map
     const THICKNESS: u32 = 32;
