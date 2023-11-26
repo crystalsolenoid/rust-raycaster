@@ -35,11 +35,12 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
 }
 
 fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
-    for x in 0..512 {
-        let ray = view[(511 - x) as usize];
+    let heights = raycast_utils::calculate_heights(view, cam);
+    for (i, ray) in view.iter().enumerate() {
         let color = pick_color(ray.wall);
-        let mut from_axis = (cam.max_distance / ray.distance) as u32;
+        let mut from_axis = heights[i] as u32;
         from_axis = cmp::min(from_axis, cam.max_distance as u32);
+        let x = 511 - i as u32;
         for y in 0..from_axis as u32 {
             img.put_pixel(x, 256 + y, color);
             img.put_pixel(x, 256 - y, color);

@@ -16,6 +16,15 @@ pub struct Ray<T> {
     pub wall: Option<T>, //TODO rename to collision?
 }
 
+pub fn calculate_heights<T>(rays: &[Ray<T>], cam: &Camera) -> Vec<f32> {
+    let mut heights = vec![0.0; rays.len()];
+    for (i, ray) in rays.iter().enumerate() {
+        let from_axis = cam.max_distance / ray.distance;
+        heights[i] = from_axis;
+    }
+    heights
+}
+
 pub fn calculate_ray(distance: f32, angle: f32) -> (i32, i32) {
     let x_off = distance * angle.cos();
     let y_off = distance * angle.sin();
