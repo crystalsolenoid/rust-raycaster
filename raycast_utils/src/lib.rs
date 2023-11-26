@@ -1,8 +1,8 @@
 use std::f32::consts::PI;
 
 pub struct Camera {
-    pub x: u32,
-    pub y: u32,
+    pub x: i32,
+    pub y: i32,
     pub radians: f32,
     pub fov: f32,
 }
@@ -13,10 +13,10 @@ pub struct Ray<T> {
     pub wall: Option<T>, //TODO rename to collision?
 }
 
-pub fn calculate_ray(distance: f32, angle: f32) -> (u32, u32) {
+pub fn calculate_ray(distance: f32, angle: f32) -> (i32, i32) {
     let x_off = distance * angle.cos();
     let y_off = distance * angle.sin();
-    (x_off as u32, y_off as u32)
+    (x_off as i32, y_off as i32)
 }
 
 pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {

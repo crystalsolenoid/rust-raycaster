@@ -80,8 +80,8 @@ fn cast_ray(w: u32,
         let offset = raycast_utils::calculate_ray(dist, angle);
         let x_off = offset.0;
         let y_off = offset.1;
-        let x = cam.x + x_off;
-        let y = cam.y - y_off; // minus because +y is down
+        let x = (cam.x + x_off) as u32;
+        let y = (cam.y - y_off) as u32; // minus because +y is down
         let idx = (x + y * w) as usize;
         // TODO: make this pattern matching
         if map[idx].is_some() {
@@ -102,10 +102,10 @@ fn cast_ray(w: u32,
 fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
     // crosshairs for camera location
     for x in camera.x - 10 ..= camera.x + 10 {
-        img.put_pixel(x, camera.y, PALETTE[0]);
+        img.put_pixel(x as u32, camera.y as u32, PALETTE[0]);
     }
     for y in camera.y - 10 ..= camera.y + 10 {
-        img.put_pixel(camera.x, y, PALETTE[0]);
+        img.put_pixel(camera.x as u32, y as u32, PALETTE[0]);
     }
 }
 
