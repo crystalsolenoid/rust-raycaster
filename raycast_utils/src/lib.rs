@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use map::Map;
 
 pub struct Camera {
     pub x: i32,
@@ -38,7 +39,7 @@ pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
     ((angle % MAX_ANGLE) + MAX_ANGLE) % MAX_ANGLE
 }
 
-pub fn cast_ray<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera, span: f32) -> Ray<T> {
+pub fn cast_ray<T: Copy>(map: Map, cam: &Camera, span: f32) -> Ray<T> {
     // step ranges from 0 to 1: percentage throug the fov
     let angle = calculate_angle(cam, span);
     for step in 0..cam.ray_steps {
@@ -48,12 +49,12 @@ pub fn cast_ray<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera, span: f32) -> 
         let y_off = offset.1;
         let x = (cam.x + x_off) as u32;
         let y = (cam.y - y_off) as u32; // minus because +y is down
-        let idx = (x + y * w) as usize;
+        let idx = (x + y * map.w) as usize;
         // TODO: make this pattern matching
-        if map[idx].is_some() {
+        if map.map[idx].is_some() {
             return Ray {
                 distance: dist,
-                wall: map[idx],
+                wall: map.map[idx],
                 angle: angle,
             };
         }
@@ -65,10 +66,10 @@ pub fn cast_ray<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera, span: f32) -> 
     };
 }
 
-pub fn cast_fov<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera) -> Vec<Ray<T>> {
-    let mut view = Vec::with_capacity(w as usize);
+pub fn cast_fov<T: Copy>(map: Map, cam: &Camera) -> Vec<Ray<T>> {
+    let mut view = Vec::with_capacity(map.w as usize);
     view.resize(
-        w as usize,
+        map.w as usize,
         Ray {
             distance: cam.max_distance,
             wall: None,
@@ -77,7 +78,7 @@ pub fn cast_fov<T: Copy>(w: u32, map: &[Option<T>], cam: &Camera) -> Vec<Ray<T>>
     );
     for i in 0..512 {
         let step = (i as f32) / cam.max_distance;
-        let ray = cast_ray(w, &map, &cam, step);
+        let ray = cast_ray(&map, &cam, step);
         view[i as usize] = ray;
     }
     view

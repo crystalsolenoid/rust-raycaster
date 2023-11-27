@@ -1,4 +1,5 @@
 use image::Rgb;
+use map::Map;
 use raycast_utils;
 use raycast_utils::{Camera, Ray};
 use std::cmp;
@@ -18,13 +19,6 @@ const PALETTE: [Rgb<u8>; 8] = [
     Rgb([32, 32, 32]),   // Black
 ];
 
-#[derive(Clone, Copy)]
-enum Wall {
-    Dirt,
-    Brick,
-    Stone,
-}
-
 fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     match wall {
         Some(Wall::Dirt) => PALETTE[2],
@@ -32,6 +26,13 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
         Some(Wall::Stone) => PALETTE[6],
         None => PALETTE[7],
     }
+}
+
+#[derive(Clone, Copy)]
+enum Wall {
+    Dirt,
+    Brick,
+    Stone,
 }
 
 fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
@@ -90,65 +91,6 @@ fn write_image(img: &image::RgbImage, fname: &str) {
     let _ = image::save_buffer("output/".to_string() + fname, img, dims.0, dims.1, kind);
 }
 
-fn gen_map(w: u32, h: u32) -> Vec<Option<Wall>> {
-    //    let mut map = vec![None; (w * h) as usize];
-    let mut map = Vec::with_capacity((w * h) as usize);
-    map.resize((w * h) as usize, None);
-
-    let draw_rect =
-        |map: &mut [Option<Wall>], x1: u32, y1: u32, x2: u32, y2: u32, material: Option<Wall>| {
-            for y in y1..y2 {
-                for x in x1..x2 {
-                    let idx = (x + y * w) as usize;
-                    map[idx] = material;
-                }
-            }
-        };
-
-    let horiz_wall =
-        |map: &mut [Option<Wall>], x1: u32, x2: u32, y1: u32, material: Option<Wall>| {
-            draw_rect(map, x1, y1, x2, y1 + THICKNESS, material);
-        };
-
-    let vert_wall =
-        |map: &mut [Option<Wall>], y1: u32, y2: u32, x1: u32, material: Option<Wall>| {
-            draw_rect(map, x1, y1, x1 + THICKNESS, y2, material);
-        };
-
-    // test map
-    const THICKNESS: u32 = 32;
-    // outer walls
-    let mut material = Some(Wall::Dirt);
-    draw_rect(&mut map, 0, 0, THICKNESS, h, material);
-    draw_rect(&mut map, 0, 0, w, THICKNESS, material);
-    draw_rect(&mut map, w - THICKNESS, 0, w, h, material);
-    draw_rect(&mut map, 0, h - THICKNESS, w, h, material);
-    // inner walls
-    // little room
-    material = Some(Wall::Stone);
-    horiz_wall(&mut map, 0, 150, 200, material);
-    horiz_wall(&mut map, 0, 150, 400, material);
-    vert_wall(&mut map, 200, 280, 150, material);
-    vert_wall(&mut map, 320, 400 + THICKNESS, 150, material);
-    vert_wall(&mut map, 200, 400, 0, material);
-    // hallway
-    material = Some(Wall::Brick);
-    vert_wall(&mut map, 100, h, 250, material);
-    horiz_wall(&mut map, 100, 250, 100, material);
-    horiz_wall(&mut map, 340, w, 100, material);
-    horiz_wall(&mut map, 250 + THICKNESS, 450, 170, material);
-    // bumps
-    material = Some(Wall::Brick);
-    vert_wall(&mut map, 450, h, 400, material);
-    vert_wall(&mut map, 450, h, 350, material);
-    vert_wall(&mut map, 450, h, 300, material);
-    // columns
-    material = Some(Wall::Stone);
-    vert_wall(&mut map, 300, 300 + THICKNESS, 380, material);
-
-    map
-}
-
 fn main() {
     let w: u32 = 512;
     let h: u32 = 512;
@@ -165,10 +107,10 @@ fn main() {
         ray_steps: 256,
     };
 
-    for y in 0..h {
-        for x in 0..w {
-            let idx = (x + y * w) as usize;
-            let wall = map[idx];
+    for y in 0..map.h {
+        for x in 0..map.w {
+            let idx = (x + y * map.w) as usize;
+            let wall = map.map[idx];
             let color = pick_color(wall);
 
             img.put_pixel(x, y, color);
@@ -177,7 +119,7 @@ fn main() {
 
     draw_camera(&mut img, &camera);
 
-    let view = raycast_utils::cast_fov(w, &map, &camera);
+    let view = raycast_utils::cast_fov(&map, &camera);
     draw_fov(&mut img, &view, &camera);
 
     write_image(&img, "map.png");
