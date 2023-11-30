@@ -1,6 +1,6 @@
 use image::Rgb;
 use map;
-use map::{Wall, Map};
+use map::{Wall};
 use raycast_utils;
 use raycast_utils::{Camera, Ray};
 use std::cmp;
