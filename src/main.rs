@@ -35,8 +35,13 @@ fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
         from_axis = cmp::min(from_axis, cam.max_distance as u32);
         let x = 511 - i as u32;
         for y in 0..from_axis as u32 {
-            img.put_pixel(x, 256 + y, color);
-            img.put_pixel(x, 256 - y, color);
+            // make sure there's no out of bounds errors
+            if let Some(p) = img.get_pixel_mut_checked(x, 256 + y) {
+                *p = color;
+            }
+            if let Some(p) = img.get_pixel_mut_checked(x, 256_u32.overflowing_sub(y).0) {
+                *p = color;
+            }
         }
     }
 }
