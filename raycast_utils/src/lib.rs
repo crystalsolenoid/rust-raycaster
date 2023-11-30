@@ -33,6 +33,7 @@ pub fn calculate_ray(distance: f32, angle: f32) -> (i32, i32) {
 }
 
 pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
+    // span: value between 0.0 and 1.0 that's the percent through the field of view
     let angle = cam.radians + cam.fov * (span - 0.5);
     const MAX_ANGLE: f32 = 2.0 * PI;
     // angle % MAX_ANGLE but for deranged inconsistent Rust/C math:
