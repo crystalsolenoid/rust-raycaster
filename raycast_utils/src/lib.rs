@@ -4,10 +4,25 @@ use map::{Wall, Map};
 pub struct Camera {
     pub x: i32,
     pub y: i32,
+    pub height: i32,
     pub radians: f32,
     pub fov: f32,
     pub max_distance: f32,
     pub ray_steps: u32,
+}
+
+impl Camera {
+    pub fn default() -> Self {
+        Self {
+            x: 0,
+            y: 0,
+            height: 32,
+            radians: 0.0,
+            fov: PI / 3.0,
+            max_distance: 512.0,
+            ray_steps: 512,
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -93,12 +108,9 @@ mod tests {
     #[test]
     fn fov_lowest() {
         let cam = Camera {
-            x: 150,
-            y: 150,
             radians: PI,
             fov: 2.0 * PI / 3.0,
-            max_distance: 512.0,
-            ray_steps: 256,
+            ..Camera::default()
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 2.0 * PI / 3.0);
@@ -107,12 +119,9 @@ mod tests {
     #[test]
     fn fov_highest() {
         let cam = Camera {
-            x: 150,
-            y: 150,
             radians: PI,
             fov: 2.0 * PI / 3.0,
-            max_distance: 512.0,
-            ray_steps: 256,
+            ..Camera::default()
         };
         let result = calculate_angle(&cam, 1.0);
         assert_approx_eq!(result, 4.0 * PI / 3.0);
@@ -121,12 +130,9 @@ mod tests {
     #[test]
     fn angle_at_zero() {
         let cam = Camera {
-            x: 150,
-            y: 150,
             radians: 0.0,
             fov: 2.0 * PI / 3.0,
-            max_distance: 512.0,
-            ray_steps: 256,
+            ..Camera::default()
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 5.0 * PI / 3.0);
@@ -135,12 +141,9 @@ mod tests {
     #[test]
     fn fov_below_zero() {
         let cam = Camera {
-            x: 150,
-            y: 150,
             radians: 1.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
-            max_distance: 512.0,
-            ray_steps: 256,
+            ..Camera::default()
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 5.0 * PI / 3.0);
@@ -149,12 +152,9 @@ mod tests {
     #[test]
     fn fov_above_2_pi() {
         let cam = Camera {
-            x: 150,
-            y: 150,
             radians: 5.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
-            max_distance: 512.0,
-            ray_steps: 256,
+            ..Camera::default()
         };
         let result = calculate_angle(&cam, 1.0);
         assert_approx_eq!(result, 1.0 * PI / 3.0);

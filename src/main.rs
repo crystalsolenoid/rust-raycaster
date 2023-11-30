@@ -23,9 +23,7 @@ fn main() {
         x: 380,
         y: 340,
         radians: 0.3 * PI,
-        fov: 0.5 * PI,
-        max_distance: 512.0,
-        ray_steps: 256,
+        ..Camera::default()
     };
 
     draw::draw_map(&mut img, &map);
