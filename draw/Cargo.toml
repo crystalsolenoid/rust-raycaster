@@ -1,5 +1,5 @@
 [package]
-name = "raycaster"
+name = "draw"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 image = "0.24.7"
-raycast_utils = { path = "raycast_utils" }
-map = { path = "map" }
-draw = { path = "draw" }
+map = { path = "../map" }
+raycast_utils = { path = "../raycast_utils" }
