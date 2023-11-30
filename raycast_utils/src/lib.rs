@@ -1,5 +1,5 @@
 use std::f32::consts::PI;
-use map::Map;
+use map::{Wall};
 
 pub struct Camera {
     pub x: i32,
@@ -39,7 +39,7 @@ pub fn calculate_angle(cam: &Camera, span: f32) -> f32 {
     ((angle % MAX_ANGLE) + MAX_ANGLE) % MAX_ANGLE
 }
 
-pub fn cast_ray<T: Copy>(map: Map, cam: &Camera, span: f32) -> Ray<T> {
+pub fn cast_ray(map: &Map, cam: &Camera, span: f32) -> Ray<Wall> {
     // step ranges from 0 to 1: percentage throug the fov
     let angle = calculate_angle(cam, span);
     for step in 0..cam.ray_steps {
@@ -66,7 +66,7 @@ pub fn cast_ray<T: Copy>(map: Map, cam: &Camera, span: f32) -> Ray<T> {
     };
 }
 
-pub fn cast_fov<T: Copy>(map: Map, cam: &Camera) -> Vec<Ray<T>> {
+pub fn cast_fov(map: &Map, cam: &Camera) -> Vec<Ray<Wall>> {
     let mut view = Vec::with_capacity(map.w as usize);
     view.resize(
         map.w as usize,

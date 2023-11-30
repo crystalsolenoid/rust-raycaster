@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 image = "0.24.7"
 raycast_utils = { path = "raycast_utils" }
+map = { path = "map" }

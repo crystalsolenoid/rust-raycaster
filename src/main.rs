@@ -1,5 +1,6 @@
 use image::Rgb;
-use map::Map;
+use map;
+use map::{Wall, Map};
 use raycast_utils;
 use raycast_utils::{Camera, Ray};
 use std::cmp;
@@ -26,13 +27,6 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
         Some(Wall::Stone) => PALETTE[6],
         None => PALETTE[7],
     }
-}
-
-#[derive(Clone, Copy)]
-enum Wall {
-    Dirt,
-    Brick,
-    Stone,
 }
 
 fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
@@ -97,7 +91,7 @@ fn main() {
     let mut img = image::RgbImage::new(w, h);
     let mut render = image::RgbImage::new(w, h);
 
-    let map = gen_map(w, h);
+    let map = map::gen_map(w, h);
     let camera = Camera {
         x: 380,
         y: 340,

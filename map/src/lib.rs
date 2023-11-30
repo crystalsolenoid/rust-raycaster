@@ -1,13 +1,20 @@
-struct Map {
-    map: Vec<Option<Wall>>,
-    w: u32,
-    h: u32,
+pub struct Map {
+    pub map: Vec<Option<Wall>>,
+    pub w: u32,
+    pub h: u32,
+}
+
+#[derive(Clone, Copy)]
+pub enum Wall {
+    Dirt,
+    Brick,
+    Stone,
 }
 
 impl Map {
     const WALL_THICKNESS: u32 = 32;
 
-    fn new(w: u32, h: u32) -> Self {
+    pub fn new(w: u32, h: u32) -> Self {
         let mut map = Vec::with_capacity((w * h) as usize);
         map.resize((w * h) as usize, None);
         Self {
@@ -27,20 +34,20 @@ impl Map {
     }
 
     fn horiz_wall(&mut self, x1: u32, x2: u32, y1: u32, material: Option<Wall>) {
-        draw_rect(self.map, x1, y1, x2, y1 + Self::WALL_THICKNESS, material);
+        self.draw_rect(x1, y1, x2, y1 + Self::WALL_THICKNESS, material);
     }
 
     fn vert_wall(&mut self, y1: u32, y2: u32, x1: u32, material: Option<Wall>) {
-        draw_rect(self.map, x1, y1, x1 + Self::WALL_THICKNESS, y2, material);
+        self.draw_rect(x1, y1, x1 + Self::WALL_THICKNESS, y2, material);
     }
 
-    fn into_values(self) -> Vec<Option<Wall>> {
+    pub fn into_values(self) -> Vec<Option<Wall>> {
         self.map
     }
 
 }
 
-fn gen_map(w: u32, h: u32) -> Map {
+pub fn gen_map(w: u32, h: u32) -> Map {
     // hard-coded test map
     let mut map = Map::new(w, h);
 
