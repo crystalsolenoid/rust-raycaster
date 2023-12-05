@@ -25,6 +25,11 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
     }
 }
 
+const HORIZONTAL_COLORS: [Rgb<u8>; 2] = [
+    PALETTE[7], // Ceiling
+    PALETTE[3], // Floor
+];
+
 pub fn draw_map(img: &mut image::RgbImage, map: &Map) {
     for y in 0..map.h {
         for x in 0..map.w {
@@ -51,6 +56,18 @@ pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
             }
             if let Some(p) = img.get_pixel_mut_checked(x, 256_u32.overflowing_sub(y).0) {
                 *p = color;
+            }
+        }
+        for y in 512/2 + from_axis..512 as u32 {
+            // floor
+            if let Some(p) = img.get_pixel_mut_checked(x, y) {
+                *p = HORIZONTAL_COLORS[1];
+            }
+        }
+        for y in 0..=512/2 - from_axis as u32 {
+            // ceiling
+            if let Some(p) = img.get_pixel_mut_checked(x, y) {
+                *p = HORIZONTAL_COLORS[0];
             }
         }
     }
