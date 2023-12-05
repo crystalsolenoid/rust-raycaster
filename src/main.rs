@@ -82,11 +82,11 @@ fn main() {
                         surface.resize(width, height).unwrap();
 
                         let mut buffer = surface.buffer_mut().unwrap();
-                        for y in 0..height.get() {
-                            for x in 0..width.get() {
-                                let red = x % 255;
-                                let green = y % 255;
-                                let blue = (x * y) % 255;
+                        for y in 0..std::cmp::min(512, height.get()) {
+                            for x in 0..std::cmp::min(512, width.get()) {
+                                let red = render.get_pixel(x, y)[0] as u32;
+                                let green = render.get_pixel(x, y)[1] as u32;
+                                let blue = render.get_pixel(x, y)[2] as u32;
                                 let index = y as usize * width.get() as usize + x as usize;
                                 buffer[index] = blue | (green << 8) | (red << 16);
                             }
