@@ -8,6 +8,7 @@ use winit::event::{Event, KeyEvent, WindowEvent, ElementState};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::keyboard::{PhysicalKey, KeyCode, Key, NamedKey};
 use winit::window::WindowBuilder;
+use winit::dpi::PhysicalSize;
 
 fn write_image(img: &image::RgbImage, fname: &str) {
     // TODO: handle errors
@@ -47,7 +48,10 @@ fn main() {
     write_image(&render, "render.png");
 
     let event_loop = EventLoop::new().unwrap();
-    let window = Rc::new(WindowBuilder::new().build(&event_loop).unwrap());
+    let window = Rc::new(WindowBuilder::new()
+                         .with_inner_size(PhysicalSize::new(1028, 512))
+                         .build(&event_loop)
+                         .unwrap());
 
     #[cfg(target_arch = "wasm32")]
     {
