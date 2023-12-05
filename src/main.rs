@@ -50,6 +50,7 @@ fn main() {
     let event_loop = EventLoop::new().unwrap();
     let window = Rc::new(WindowBuilder::new()
                          .with_inner_size(PhysicalSize::new(1028, 512))
+                         .with_title("Raycaster")
                          .build(&event_loop)
                          .unwrap());
 
