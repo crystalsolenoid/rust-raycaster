@@ -35,7 +35,7 @@ pub struct Ray<T> {
 pub fn calculate_heights<T>(rays: &[Ray<T>], cam: &Camera) -> Vec<f32> {
     let mut heights = vec![0.0; rays.len()];
     for (i, ray) in rays.iter().enumerate() {
-        let from_axis = cam.max_distance / ray.distance;
+        let from_axis = 32.0 * cam.max_distance / ray.distance;
         heights[i] = from_axis;
     }
     heights
