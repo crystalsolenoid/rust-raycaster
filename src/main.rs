@@ -4,9 +4,9 @@ use std::fs;
 
 use std::num::NonZeroU32;
 use std::rc::Rc;
-use winit::event::{Event, KeyEvent, WindowEvent};
+use winit::event::{Event, KeyEvent, WindowEvent, ElementState};
 use winit::event_loop::{ControlFlow, EventLoop};
-use winit::keyboard::{Key, NamedKey};
+use winit::keyboard::{PhysicalKey, KeyCode, Key, NamedKey};
 use winit::window::WindowBuilder;
 
 fn write_image(img: &image::RgbImage, fname: &str) {
@@ -26,10 +26,10 @@ fn main() {
     let mut render = image::RgbImage::new(w, h);
 
     let map = map::gen_map(w, h);
-    let camera = Camera {
+    let mut camera = Camera {
         x: 380,
         y: 340,
-        radians: 0.3 * PI,
+        radians: 0.0 * PI,
         ..Camera::default()
     };
 
@@ -84,9 +84,17 @@ fn main() {
                         let mut buffer = surface.buffer_mut().unwrap();
                         for y in 0..std::cmp::min(512, height.get()) {
                             for x in 0..std::cmp::min(512, width.get()) {
+                                // TODO this is terrible
                                 let red = render.get_pixel(x, y)[0] as u32;
                                 let green = render.get_pixel(x, y)[1] as u32;
                                 let blue = render.get_pixel(x, y)[2] as u32;
+                                let index = y as usize * width.get() as usize + x as usize;
+                                buffer[index] = blue | (green << 8) | (red << 16);
+                            }
+                            for x in std::cmp::min(512, width.get())..std::cmp::min(512 * 2, width.get()) {
+                                let red = img.get_pixel(x - 512, y)[0] as u32;
+                                let green = img.get_pixel(x - 512, y)[1] as u32;
+                                let blue = img.get_pixel(x - 512, y)[2] as u32;
                                 let index = y as usize * width.get() as usize + x as usize;
                                 buffer[index] = blue | (green << 8) | (red << 16);
                             }
@@ -95,6 +103,101 @@ fn main() {
                         buffer.present().unwrap();
                     }
                 }
+
+                Event::WindowEvent {
+                    event:
+                        WindowEvent::KeyboardInput {
+                            event:
+                                KeyEvent {
+                                    physical_key: PhysicalKey::Code(KeyCode::KeyA),
+                                    repeat: false,
+                                    state: ElementState::Pressed,
+                                    ..
+                                },
+                                ..
+                        },
+                    window_id,
+                } if window_id == window.id() => {
+                    camera.radians += 0.125 * PI;
+                    draw::draw_map(&mut img, &map);
+                    draw::draw_camera(&mut img, &camera);
+                    let view = raycast_utils::cast_fov(&map, &camera);
+                    draw::draw_fov(&mut img, &view, &camera);
+                    draw::draw_view(&mut render, &view, &camera);
+                    window.request_redraw();
+                }
+
+                Event::WindowEvent {
+                    event:
+                        WindowEvent::KeyboardInput {
+                            event:
+                                KeyEvent {
+                                    physical_key: PhysicalKey::Code(KeyCode::KeyD),
+                                    repeat: false,
+                                    state: ElementState::Pressed,
+                                    ..
+                                },
+                                ..
+                        },
+                    window_id,
+                } if window_id == window.id() => {
+                    camera.radians -= 0.125 * PI;
+                    draw::draw_map(&mut img, &map);
+                    draw::draw_camera(&mut img, &camera);
+                    let view = raycast_utils::cast_fov(&map, &camera);
+                    draw::draw_fov(&mut img, &view, &camera);
+                    draw::draw_view(&mut render, &view, &camera);
+                    window.request_redraw();
+                }
+
+                Event::WindowEvent {
+                    event:
+                        WindowEvent::KeyboardInput {
+                            event:
+                                KeyEvent {
+                                    physical_key: PhysicalKey::Code(KeyCode::KeyW),
+                                    repeat: false,
+                                    state: ElementState::Pressed,
+                                    ..
+                                },
+                                ..
+                        },
+                    window_id,
+                } if window_id == window.id() => {
+                    camera.x += (10.0 * camera.radians.cos()) as i32;
+                    camera.y -= (10.0 * camera.radians.sin()) as i32;
+                    draw::draw_map(&mut img, &map);
+                    draw::draw_camera(&mut img, &camera);
+                    let view = raycast_utils::cast_fov(&map, &camera);
+                    draw::draw_fov(&mut img, &view, &camera);
+                    draw::draw_view(&mut render, &view, &camera);
+                    window.request_redraw();
+                }
+
+                Event::WindowEvent {
+                    event:
+                        WindowEvent::KeyboardInput {
+                            event:
+                                KeyEvent {
+                                    physical_key: PhysicalKey::Code(KeyCode::KeyS),
+                                    repeat: false,
+                                    state: ElementState::Pressed,
+                                    ..
+                                },
+                                ..
+                        },
+                    window_id,
+                } if window_id == window.id() => {
+                    camera.x -= (10.0 * camera.radians.cos()) as i32;
+                    camera.y += (10.0 * camera.radians.sin()) as i32;
+                    draw::draw_map(&mut img, &map);
+                    draw::draw_camera(&mut img, &camera);
+                    let view = raycast_utils::cast_fov(&map, &camera);
+                    draw::draw_fov(&mut img, &view, &camera);
+                    draw::draw_view(&mut render, &view, &camera);
+                    window.request_redraw();
+                }
+                
                 Event::WindowEvent {
                     event:
                         WindowEvent::CloseRequested
