@@ -21,6 +21,7 @@ fn pick_color(wall: Option<Wall>) -> Rgb<u8> {
         Some(Wall::Dirt) => PALETTE[2],
         Some(Wall::Brick) => PALETTE[0],
         Some(Wall::Stone) => PALETTE[6],
+        Some(Wall::Crystal) => PALETTE[4],
         None => PALETTE[7],
     }
 }

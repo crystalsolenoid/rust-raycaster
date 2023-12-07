@@ -9,6 +9,7 @@ pub enum Wall {
     Dirt,
     Brick,
     Stone,
+    Crystal,
 }
 
 impl Map {
@@ -46,6 +47,56 @@ impl Map {
     }
 
 }
+
+pub fn spooky_map() -> Map {
+    let mut map = Map::new(512, 512);
+
+    let mut material;
+
+    material = Some(Wall::Stone);
+    map.horiz_wall(0, 512, 0, material);
+    map.horiz_wall(0, 512, 512 - 32, material);
+    map.vert_wall(0, 512, 0, material);
+    map.vert_wall(0, 512, 512 - 32, material);
+
+    material = Some(Wall::Dirt);
+    map.horiz_wall(224, 256, 480, material);
+
+    material = Some(Wall::Stone);
+    map.vert_wall(64, 192, 64, material);
+    map.vert_wall(224, 352, 64, material);
+    map.vert_wall(384, 448, 64, material);
+
+    map.horiz_wall(96, 448, 64, material);
+
+    material = Some(Wall::Brick);
+    map.horiz_wall(128, 160, 128, material);
+    map.horiz_wall(224, 256, 128, material);
+    map.horiz_wall(320, 352, 128, material);
+
+    map.horiz_wall(128, 160, 256, material);
+    map.horiz_wall(224, 256, 256, material);
+    map.horiz_wall(320, 352, 256, material);
+
+    material = Some(Wall::Crystal);
+    map.horiz_wall(384, 416, 192, material);
+
+    material = Some(Wall::Stone);
+    map.horiz_wall(64, 480, 320, material);
+
+    map.vert_wall(64, 288, 416, material);
+
+    map.vert_wall(384, 448, 64, material);
+    map.vert_wall(384, 480, 160, material);
+    map.vert_wall(384, 480, 288, material);
+
+    map.horiz_wall(64, 224, 384, material);
+    map.horiz_wall(256, 384, 384, material);
+    map.horiz_wall(416, 480, 384, material);
+
+    map
+}
+
 
 pub fn gen_map(w: u32, h: u32) -> Map {
     // hard-coded test map

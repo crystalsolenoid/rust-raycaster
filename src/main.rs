@@ -26,11 +26,12 @@ fn main() {
     let mut img = image::RgbImage::new(w, h);
     let mut render = image::RgbImage::new(w, h);
 
-    let map = map::gen_map(w, h);
+//    let map = map::gen_map(512, 512);
+    let map = map::spooky_map();
     let mut camera = Camera {
-        x: 380,
-        y: 340,
-        radians: 0.0 * PI,
+        x: 240,
+        y: 464,
+        radians: 0.5 * PI,
         ..Camera::default()
     };
 
