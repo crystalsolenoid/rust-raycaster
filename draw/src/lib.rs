@@ -1,5 +1,5 @@
 use map::{Map, Wall};
-use image::{Rgb};
+use image::Rgb;
 use raycast_utils::{Ray, Camera};
 use std::cmp;
 
@@ -108,5 +108,5 @@ pub fn draw_camera(img: &mut image::RgbImage, camera: &Camera) {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    //use super::*;
 }
