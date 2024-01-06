@@ -35,7 +35,7 @@ fn main() {
         x: 240,
         y: 464,
         radians: 0.5 * PI,
-        ..Camera::default()
+        ..Camera::new()
     };
 
     draw::draw_map(&mut img, &map);

@@ -50,7 +50,7 @@ pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
         let mut from_axis = heights[i] as u32;
         from_axis = cmp::min(from_axis, cam.max_distance as u32);
         let x = 511 - i as u32;
-        for y in 0..from_axis as u32 {
+        for y in 0..from_axis {
             // make sure there's no out of bounds errors
             if let Some(p) = img.get_pixel_mut_checked(x, 256 + y) {
                 *p = color;
@@ -59,7 +59,7 @@ pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
                 *p = color;
             }
         }
-        for y in 512 / 2 + from_axis..512 as u32 {
+        for y in 512 / 2 + from_axis..512 {
             // floor
             if let Some(p) = img.get_pixel_mut_checked(x, y) {
                 *p = HORIZONTAL_COLORS[1];

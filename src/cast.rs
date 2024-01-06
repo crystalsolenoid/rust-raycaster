@@ -1,6 +1,7 @@
 use crate::map::{Map, Wall};
 use std::f32::consts::PI;
 
+#[derive(Default)]
 pub struct Camera {
     pub x: i32,
     pub y: i32,
@@ -12,7 +13,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn default() -> Self {
+    pub fn new() -> Self {
         Self {
             x: 0,
             y: 0,
@@ -71,15 +72,15 @@ pub fn cast_ray(map: &Map, cam: &Camera, span: f32) -> Ray<Wall> {
             return Ray {
                 distance: dist,
                 wall: map.map[idx],
-                angle: angle,
+                angle,
             };
         }
     }
-    return Ray {
+    Ray {
         distance: cam.max_distance,
         wall: None,
-        angle: angle,
-    };
+        angle,
+    }
 }
 
 pub fn cast_fov(map: &Map, cam: &Camera) -> Vec<Ray<Wall>> {
@@ -94,7 +95,7 @@ pub fn cast_fov(map: &Map, cam: &Camera) -> Vec<Ray<Wall>> {
     );
     for i in 0..512 {
         let step = (i as f32) / cam.max_distance;
-        let ray = cast_ray(&map, &cam, step);
+        let ray = cast_ray(map, cam, step);
         view[i as usize] = ray;
     }
     view
@@ -110,7 +111,7 @@ mod tests {
         let cam = Camera {
             radians: PI,
             fov: 2.0 * PI / 3.0,
-            ..Camera::default()
+            ..Camera::new()
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 2.0 * PI / 3.0);
@@ -121,7 +122,7 @@ mod tests {
         let cam = Camera {
             radians: PI,
             fov: 2.0 * PI / 3.0,
-            ..Camera::default()
+            ..Camera::new()
         };
         let result = calculate_angle(&cam, 1.0);
         assert_approx_eq!(result, 4.0 * PI / 3.0);
@@ -132,7 +133,7 @@ mod tests {
         let cam = Camera {
             radians: 0.0,
             fov: 2.0 * PI / 3.0,
-            ..Camera::default()
+            ..Camera::new()
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 5.0 * PI / 3.0);
@@ -143,7 +144,7 @@ mod tests {
         let cam = Camera {
             radians: 1.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
-            ..Camera::default()
+            ..Camera::new()
         };
         let result = calculate_angle(&cam, 0.0);
         assert_approx_eq!(result, 5.0 * PI / 3.0);
@@ -154,7 +155,7 @@ mod tests {
         let cam = Camera {
             radians: 5.0 * PI / 3.0,
             fov: 4.0 * PI / 3.0,
-            ..Camera::default()
+            ..Camera::new()
         };
         let result = calculate_angle(&cam, 1.0);
         assert_approx_eq!(result, 1.0 * PI / 3.0);
