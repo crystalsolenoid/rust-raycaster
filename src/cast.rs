@@ -1,5 +1,5 @@
+use crate::map::{Map, Wall};
 use std::f32::consts::PI;
-use crate::map::{Wall, Map};
 
 pub struct Camera {
     pub x: i32,

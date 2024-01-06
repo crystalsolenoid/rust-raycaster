@@ -18,11 +18,7 @@ impl Map {
     pub fn new(w: u32, h: u32) -> Self {
         let mut map = Vec::with_capacity((w * h) as usize);
         map.resize((w * h) as usize, None);
-        Self {
-            map,
-            w,
-            h,
-        }
+        Self { map, w, h }
     }
 
     fn draw_rect(&mut self, x1: u32, y1: u32, x2: u32, y2: u32, material: Option<Wall>) {
@@ -45,7 +41,6 @@ impl Map {
     pub fn into_values(self) -> Vec<Option<Wall>> {
         self.map
     }
-
 }
 
 pub fn spooky_map() -> Map {
@@ -96,7 +91,6 @@ pub fn spooky_map() -> Map {
 
     map
 }
-
 
 pub fn gen_map(w: u32, h: u32) -> Map {
     // hard-coded test map

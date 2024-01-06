@@ -3,11 +3,11 @@ use std::fs;
 
 use std::num::NonZeroU32;
 use std::rc::Rc;
-use winit::event::{Event, KeyEvent, WindowEvent, ElementState};
-use winit::event_loop::{ControlFlow, EventLoop};
-use winit::keyboard::{PhysicalKey, KeyCode, Key, NamedKey};
-use winit::window::WindowBuilder;
 use winit::dpi::PhysicalSize;
+use winit::event::{ElementState, Event, KeyEvent, WindowEvent};
+use winit::event_loop::{ControlFlow, EventLoop};
+use winit::keyboard::{Key, KeyCode, NamedKey, PhysicalKey};
+use winit::window::WindowBuilder;
 
 use raycaster::cast::{self, Camera};
 use raycaster::draw;
@@ -29,7 +29,7 @@ fn main() {
     let mut img = image::RgbImage::new(w, h);
     let mut render = image::RgbImage::new(w, h);
 
-//    let map = map::gen_map(512, 512);
+    //    let map = map::gen_map(512, 512);
     let map = map::spooky_map();
     let mut camera = Camera {
         x: 240,
@@ -52,11 +52,13 @@ fn main() {
     write_image(&render, "render.png");
 
     let event_loop = EventLoop::new().unwrap();
-    let window = Rc::new(WindowBuilder::new()
-                         .with_inner_size(PhysicalSize::new(1028, 512))
-                         .with_title("Raycaster")
-                         .build(&event_loop)
-                         .unwrap());
+    let window = Rc::new(
+        WindowBuilder::new()
+            .with_inner_size(PhysicalSize::new(1028, 512))
+            .with_title("Raycaster")
+            .build(&event_loop)
+            .unwrap(),
+    );
 
     #[cfg(target_arch = "wasm32")]
     {
@@ -100,7 +102,9 @@ fn main() {
                                 let index = y as usize * width.get() as usize + x as usize;
                                 buffer[index] = blue | (green << 8) | (red << 16);
                             }
-                            for x in std::cmp::min(512, width.get())..std::cmp::min(512 * 2, width.get()) {
+                            for x in
+                                std::cmp::min(512, width.get())..std::cmp::min(512 * 2, width.get())
+                            {
                                 let red = img.get_pixel(x - 512, y)[0] as u32;
                                 let green = img.get_pixel(x - 512, y)[1] as u32;
                                 let blue = img.get_pixel(x - 512, y)[2] as u32;
@@ -123,7 +127,7 @@ fn main() {
                                     state: ElementState::Pressed,
                                     ..
                                 },
-                                ..
+                            ..
                         },
                     window_id,
                 } if window_id == window.id() => {
@@ -146,7 +150,7 @@ fn main() {
                                     state: ElementState::Pressed,
                                     ..
                                 },
-                                ..
+                            ..
                         },
                     window_id,
                 } if window_id == window.id() => {
@@ -169,7 +173,7 @@ fn main() {
                                     state: ElementState::Pressed,
                                     ..
                                 },
-                                ..
+                            ..
                         },
                     window_id,
                 } if window_id == window.id() => {
@@ -193,7 +197,7 @@ fn main() {
                                     state: ElementState::Pressed,
                                     ..
                                 },
-                                ..
+                            ..
                         },
                     window_id,
                 } if window_id == window.id() => {
@@ -206,7 +210,7 @@ fn main() {
                     draw::draw_view(&mut render, &view, &camera);
                     window.request_redraw();
                 }
-                
+
                 Event::WindowEvent {
                     event:
                         WindowEvent::CloseRequested

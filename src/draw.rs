@@ -1,6 +1,6 @@
+use crate::cast::{self, Camera, Ray};
 use crate::map::{Map, Wall};
 use image::Rgb;
-use crate::cast::{self, Ray, Camera};
 use std::cmp;
 
 const PALETTE: [Rgb<u8>; 8] = [
@@ -37,7 +37,7 @@ pub fn draw_map(img: &mut image::RgbImage, map: &Map) {
             let idx = (x + y * map.w) as usize;
             let wall = map.map[idx];
             let color = pick_color(wall);
-            
+
             img.put_pixel(x, y, color);
         }
     }
@@ -59,7 +59,7 @@ pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
                 *p = color;
             }
         }
-        for y in 512/2 + from_axis..512 as u32 {
+        for y in 512 / 2 + from_axis..512 as u32 {
             // floor
             if let Some(p) = img.get_pixel_mut_checked(x, y) {
                 *p = HORIZONTAL_COLORS[1];
