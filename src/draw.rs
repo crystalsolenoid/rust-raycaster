@@ -1,6 +1,6 @@
-use map::{Map, Wall};
+use crate::map::{Map, Wall};
 use image::Rgb;
-use raycast_utils::{Ray, Camera};
+use crate::cast::{self, Ray, Camera};
 use std::cmp;
 
 const PALETTE: [Rgb<u8>; 8] = [
@@ -44,7 +44,7 @@ pub fn draw_map(img: &mut image::RgbImage, map: &Map) {
 }
 
 pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
-    let heights = raycast_utils::calculate_heights(view, cam);
+    let heights = cast::calculate_heights(view, cam);
     for (i, ray) in view.iter().enumerate() {
         let color = pick_color(ray.wall);
         let mut from_axis = heights[i] as u32;
@@ -78,7 +78,7 @@ pub fn draw_ray(img: &mut image::RgbImage, cam: &Camera, ray: &Ray<Wall>) {
     // for debug
     for step in 0..cam.ray_steps {
         let dist = cam.max_distance * (step as f32) / (cam.ray_steps as f32);
-        let offset = raycast_utils::calculate_ray(dist, ray.angle);
+        let offset = cast::calculate_ray(dist, ray.angle);
         let x_off = offset.0;
         let y_off = offset.1;
         let x = (cam.x + x_off) as u32;

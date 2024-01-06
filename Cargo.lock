@@ -416,15 +416,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
-name = "draw"
-version = "0.1.0"
-dependencies = [
- "image",
- "map",
- "raycast_utils",
-]
-
-[[package]]
 name = "drm"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -768,10 +759,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "map"
-version = "0.1.0"
-
-[[package]]
 name = "memchr"
 version = "2.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1086,21 +1073,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42a9830a0e1b9fb145ebb365b8bc4ccd75f290f98c0247deafbbe2c75cefb544"
 
 [[package]]
-name = "raycast_utils"
-version = "0.1.0"
-dependencies = [
- "assert_approx_eq",
- "map",
-]
-
-[[package]]
 name = "raycaster"
 version = "0.1.0"
 dependencies = [
- "draw",
+ "assert_approx_eq",
  "image",
- "map",
- "raycast_utils",
  "softbuffer",
  "winit",
 ]

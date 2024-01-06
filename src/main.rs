@@ -1,4 +1,3 @@
-use raycast_utils::{Camera};
 use std::f32::consts::PI;
 use std::fs;
 
@@ -9,6 +8,10 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::keyboard::{PhysicalKey, KeyCode, Key, NamedKey};
 use winit::window::WindowBuilder;
 use winit::dpi::PhysicalSize;
+
+use raycaster::cast::{self, Camera};
+use raycaster::draw;
+use raycaster::map;
 
 fn write_image(img: &image::RgbImage, fname: &str) {
     // TODO: handle errors
@@ -39,7 +42,7 @@ fn main() {
 
     draw::draw_camera(&mut img, &camera);
 
-    let view = raycast_utils::cast_fov(&map, &camera);
+    let view = cast::cast_fov(&map, &camera);
     draw::draw_fov(&mut img, &view, &camera);
 
     write_image(&img, "map.png");
@@ -127,7 +130,7 @@ fn main() {
                     camera.radians += 0.125 * PI;
                     draw::draw_map(&mut img, &map);
                     draw::draw_camera(&mut img, &camera);
-                    let view = raycast_utils::cast_fov(&map, &camera);
+                    let view = cast::cast_fov(&map, &camera);
                     draw::draw_fov(&mut img, &view, &camera);
                     draw::draw_view(&mut render, &view, &camera);
                     window.request_redraw();
@@ -150,7 +153,7 @@ fn main() {
                     camera.radians -= 0.125 * PI;
                     draw::draw_map(&mut img, &map);
                     draw::draw_camera(&mut img, &camera);
-                    let view = raycast_utils::cast_fov(&map, &camera);
+                    let view = cast::cast_fov(&map, &camera);
                     draw::draw_fov(&mut img, &view, &camera);
                     draw::draw_view(&mut render, &view, &camera);
                     window.request_redraw();
@@ -174,7 +177,7 @@ fn main() {
                     camera.y -= (10.0 * camera.radians.sin()) as i32;
                     draw::draw_map(&mut img, &map);
                     draw::draw_camera(&mut img, &camera);
-                    let view = raycast_utils::cast_fov(&map, &camera);
+                    let view = cast::cast_fov(&map, &camera);
                     draw::draw_fov(&mut img, &view, &camera);
                     draw::draw_view(&mut render, &view, &camera);
                     window.request_redraw();
@@ -198,7 +201,7 @@ fn main() {
                     camera.y += (10.0 * camera.radians.sin()) as i32;
                     draw::draw_map(&mut img, &map);
                     draw::draw_camera(&mut img, &camera);
-                    let view = raycast_utils::cast_fov(&map, &camera);
+                    let view = cast::cast_fov(&map, &camera);
                     draw::draw_fov(&mut img, &view, &camera);
                     draw::draw_view(&mut render, &view, &camera);
                     window.request_redraw();
