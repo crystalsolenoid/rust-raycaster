@@ -3,6 +3,45 @@ use crate::map::{Map, Wall};
 use image::Rgb;
 use std::cmp;
 
+mod texture {
+    // Expexts indexed textures!
+
+    use std::fs::File;
+
+    pub fn load_texture() -> Vec<u8> {
+        let file = File::open("assets/textures/gold_brick.png").unwrap();
+        let decoder = png::Decoder::new(file);
+        let mut reader = decoder.read_info().unwrap();
+        let mut buf = vec![0; reader.output_buffer_size()];
+        let _info = reader.next_frame(&mut buf).unwrap();
+        buf
+    }
+
+    pub fn get(texture: &[u8], x: u32, y: u32) -> Option<u8> {
+        // currently assumes 16 by 16
+        const SCALE: u32 = 4;
+        const WIDTH: usize = 16;
+        const HEIGHT: usize = 16;
+        let x = ((x.div_euclid(SCALE)) as usize).rem_euclid(WIDTH);
+        let y = ((y.div_euclid(SCALE)) as usize).rem_euclid(HEIGHT);
+        texture.get(x + WIDTH * y).copied()
+    }
+
+    pub fn draw_texture(texture: &[u8], img: &mut image::RgbImage) {
+        for y in 0..512 {
+            for x in 0..512 {
+                if *img.get_pixel(x, y) == super::PALETTE[0] {
+                    let pix = get(texture, x, y);
+                    if let Some(pix) = pix {
+                        let color = super::PALETTE[pix as usize];
+                        img.put_pixel(x, y, color);
+                    }
+                }
+            }
+        }
+    }
+}
+
 const PALETTE: [Rgb<u8>; 8] = [
     // Rust Gold 8 Palette
     // https://lospec.com/palette-list/rust-gold-8
@@ -41,6 +80,9 @@ pub fn draw_map(img: &mut image::RgbImage, map: &Map) {
             img.put_pixel(x, y, color);
         }
     }
+    // TEST CODE:
+    let texture = texture::load_texture();
+    texture::draw_texture(&texture, img)
 }
 
 pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
@@ -72,6 +114,9 @@ pub fn draw_view(img: &mut image::RgbImage, view: &[Ray<Wall>], cam: &Camera) {
             }
         }
     }
+    // TEST CODE:
+    let texture = texture::load_texture();
+    texture::draw_texture(&texture, img)
 }
 
 pub fn draw_ray(img: &mut image::RgbImage, cam: &Camera, ray: &Ray<Wall>) {

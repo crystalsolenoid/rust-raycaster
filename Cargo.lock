@@ -1078,6 +1078,7 @@ version = "0.1.0"
 dependencies = [
  "assert_approx_eq",
  "image",
+ "png",
  "softbuffer",
  "winit",
 ]
